@@ -8,6 +8,9 @@ import javax.validation.ConstraintValidatorContext;
 public class UniSubjectValidator implements ConstraintValidator<UniSubjectConstraint, String> {
 	@Override
 	public boolean isValid(String value, ConstraintValidatorContext context) {
+		if (value == null) {
+			return true;
+		}
 		return UniSubject.isSupported(value);
 	}
 }

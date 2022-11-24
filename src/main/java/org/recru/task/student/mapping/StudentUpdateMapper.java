@@ -30,6 +30,7 @@ public abstract class StudentUpdateMapper {
 	public abstract void updateEntity(StudentUpdate studentUpdate, @MappingTarget StudentEntity studentEntity);
 
 	@AfterMapping
+	@SuppressWarnings("unused")
 	protected void afterMapping(StudentCreate studentUpdate, @MappingTarget StudentEntity studentEntity) {
 		if (Objects.nonNull(studentUpdate.getMajor())) {
 			UniMajor major = UniMajor.fromValue(studentUpdate.getMajor());
@@ -40,7 +41,7 @@ public abstract class StudentUpdateMapper {
 			                                     .stream()
 			                                     .filter(Objects::nonNull)
 			                                     .toList();
-			studentEntity.setTeachers(teacherService.getPersonsReferences(teachersId));
+			studentEntity.setTeachers(teacherService.getPersonsById(teachersId));
 		}
 	}
 }

@@ -9,41 +9,44 @@ import org.recru.task.teacher.dto.TeacherUpdate;
 import org.recru.task.teacher.facade.TeacherServiceFacade;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/teachers")
-@Validated
 public class TeacherController {
 	private final TeacherServiceFacade teacherServiceFacade;
 
 	@PostMapping("/create")
-	public PersonEntity.ID createTeacher(@RequestBody @Valid TeacherCreate studentDto) {
+	public PersonEntity.ID createTeacher(@RequestBody TeacherCreate studentDto) {
 		return teacherServiceFacade.createPerson(studentDto);
+	}
+
+	@GetMapping("/page")
+	public Page<TeacherRead> getTeachersByPage(Pageable page) {
+		return teacherServiceFacade.getPersonsPage(page);
+	}
+
+	@GetMapping("/teachers/{id}")
+	public Set<StudentRead> getStudentsOfTeacher(@PathVariable("id") long teacherId) {
+		return teacherServiceFacade.getStudentsOfTeacher(teacherId);
+	}
+
+	@GetMapping("/get")
+	public Set<TeacherRead> getAllTeachersByName(@RequestParam(value = "firstName", required = false) String firstName,
+	                                             @RequestParam(value = "lastName", required = false) String lastName) {
+		return teacherServiceFacade.getPersonsByName(firstName, lastName);
+	}
+
+	@PutMapping("/update/")
+	public void updateTeacher(@RequestBody TeacherUpdate studentDto) {
+		teacherServiceFacade.updatePerson(studentDto);
 	}
 
 	@DeleteMapping("/delete/{id}")
 	public void deleteTeacher(@PathVariable("id") long id) {
 		teacherServiceFacade.deletePerson(id);
-	}
-
-	@PutMapping("/update/")
-	public void updateTeacher(@RequestBody @Valid TeacherUpdate studentDto) {
-		teacherServiceFacade.updatePerson(studentDto);
-	}
-
-	@GetMapping("/page/")
-	public Page<TeacherRead> getTeachersByPage(@RequestParam("page") Pageable page) {
-		return teacherServiceFacade.getPersonsPage(page);
-	}
-
-	@GetMapping("/teachers/{id}")
-	public Set<StudentRead> getStudentsOfTeacher(@PathVariable("id") long id) {
-		return teacherServiceFacade.getStudentsOfTeacher(id);
 	}
 }

@@ -11,6 +11,4 @@ public interface StudentRepository extends PersonRepository<StudentEntity> {
 	void deleteById(Long studentId);
 
 	Optional<StudentEntity> findById(Long studentId);
-
-	StudentEntity getReferenceById(Long studentId);
 }

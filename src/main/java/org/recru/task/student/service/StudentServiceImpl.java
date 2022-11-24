@@ -7,6 +7,7 @@ import org.recru.task.student.repository.StudentRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Set;
@@ -24,7 +25,13 @@ class StudentServiceImpl extends StudentService {
 
 
 	@Override
+	@Transactional
 	public void deletePerson(Long studentId) {
+		StudentEntity studentEntity = studentRepository.findById(studentId)
+		                                               .orElseThrow(() -> new StudentNotFoundException(studentId));
+		studentEntity.getTeachers()
+		             .forEach(teacherEntity -> teacherEntity.getStudents()
+		                                                    .remove(studentEntity));
 		studentRepository.deleteById(studentId);
 	}
 
@@ -41,7 +48,7 @@ class StudentServiceImpl extends StudentService {
 
 
 	@Override
-	public Set<StudentEntity> getPersonsReferences(List<Long> studentsId) {
+	public Set<StudentEntity> getPersonsById(List<Long> studentsId) {
 		return studentRepository.getAllByPersonIdIn(studentsId);
 	}
 
@@ -58,10 +65,5 @@ class StudentServiceImpl extends StudentService {
 	@Override
 	public Set<StudentEntity> getPersonsByFullName(String firstName, String lastName) {
 		return studentRepository.findAllByFirstNameAndLastName(firstName, lastName);
-	}
-
-	@Override
-	public StudentEntity getPersonReference(Long id) {
-		return studentRepository.getReferenceById(id);
 	}
 }

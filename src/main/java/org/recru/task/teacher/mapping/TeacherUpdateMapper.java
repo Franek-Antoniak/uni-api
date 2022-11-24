@@ -37,7 +37,7 @@ public abstract class TeacherUpdateMapper {
 			                                     .stream()
 			                                     .filter(Objects::nonNull)
 			                                     .toList();
-			teacherEntity.setStudents(studentService.getPersonsReferences(studentsId));
+			teacherEntity.setStudents(studentService.getPersonsById(studentsId));
 		}
 	}
 }

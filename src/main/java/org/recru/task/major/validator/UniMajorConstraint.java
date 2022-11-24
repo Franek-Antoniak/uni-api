@@ -2,10 +2,8 @@ package org.recru.task.major.validator;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
-import javax.validation.constraints.NotEmpty;
 import java.lang.annotation.*;
 
-@NotEmpty
 @Documented
 @Constraint(validatedBy = UniMajorValidator.class)
 @Target(ElementType.FIELD)

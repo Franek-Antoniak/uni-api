@@ -16,14 +16,12 @@ public abstract class PersonService<E extends PersonEntity> {
 
 	public abstract Page<E> getPersonsPage(Pageable pageable);
 
-	public abstract Set<E> getPersonsReferences(List<Long> persons);
+	public abstract Set<E> getPersonsById(List<Long> personsId);
 
 	public abstract Set<E> getPersonsByFirstName(String firstName);
 
 	public abstract Set<E> getPersonsByLastName(String lastName);
 
 	public abstract Set<E> getPersonsByFullName(String firstName, String lastName);
-
-	public abstract E getPersonReference(Long id);
 }
 

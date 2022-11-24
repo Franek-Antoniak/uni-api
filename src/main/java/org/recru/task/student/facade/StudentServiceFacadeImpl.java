@@ -18,14 +18,16 @@ import org.recru.task.teacher.service.TeacherService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
-import java.util.List;
+import javax.validation.Valid;
 import java.util.Set;
 
 import static java.util.stream.Collectors.toSet;
 
 @Facade
 @RequiredArgsConstructor
+@Validated
 class StudentServiceFacadeImpl extends StudentServiceFacade {
 	private final StudentService studentService;
 	private final TeacherService teacherService;
@@ -35,14 +37,15 @@ class StudentServiceFacadeImpl extends StudentServiceFacade {
 	private final TeacherReadMapper teacherReadMapper;
 
 	@Override
-	public PersonEntity.ID createPerson(StudentCreate personEntity) {
+	public PersonEntity.ID createPerson(@Valid StudentCreate personEntity) {
 		StudentEntity studentEntity = studentCreateMapper.toEntity(personEntity);
 		studentEntity = studentService.savePerson(studentEntity);
 		return new PersonEntity.ID(studentEntity.getPersonId());
 	}
 
 	@Override
-	public void updatePerson(StudentUpdate studentUpdate) {
+	@Transactional
+	public void updatePerson(@Valid StudentUpdate studentUpdate) {
 		StudentEntity studentEntity = studentService.getPerson(studentUpdate.getPersonId());
 		studentUpdateMapper.updateEntity(studentUpdate, studentEntity);
 	}
@@ -53,34 +56,28 @@ class StudentServiceFacadeImpl extends StudentServiceFacade {
 	}
 
 	@Override
-	public Set<StudentEntity> getPersonsReferences(List<Long> studentsId) {
-		return studentService.getPersonsReferences(studentsId);
-	}
-
-	@Override
 	public Page<StudentRead> getPersonsPage(Pageable pageable) {
 		return studentService.getPersonsPage(pageable)
 		                     .map(studentReadMapper::toDTO);
 	}
 
 	@Override
-	public Set<StudentRead> getPersonsByFirstName(String firstName) {
-		return studentService.getPersonsByFirstName(firstName)
-		                     .stream()
-		                     .map(studentReadMapper::toDTO)
-		                     .collect(toSet());
-	}
-
-	@Override
-	public Set<StudentRead> getPersonsByLastName(String lastName) {
-		return studentService.getPersonsByLastName(lastName)
-		                     .stream()
-		                     .map(studentReadMapper::toDTO)
-		                     .collect(toSet());
-	}
-
-	@Override
-	public Set<StudentRead> getPersonsByFullName(String firstName, String lastName) {
+	public Set<StudentRead> getPersonsByName(String firstName, String lastName) {
+		if (firstName == null && lastName == null) {
+			return Set.of();
+		}
+		if (firstName == null) {
+			return studentService.getPersonsByLastName(lastName)
+			                     .stream()
+			                     .map(studentReadMapper::toDTO)
+			                     .collect(toSet());
+		}
+		if (lastName == null) {
+			return studentService.getPersonsByFirstName(firstName)
+			                     .stream()
+			                     .map(studentReadMapper::toDTO)
+			                     .collect(toSet());
+		}
 		return studentService.getPersonsByFullName(firstName, lastName)
 		                     .stream()
 		                     .map(studentReadMapper::toDTO)
@@ -99,8 +96,8 @@ class StudentServiceFacadeImpl extends StudentServiceFacade {
 	@Override
 	@Transactional
 	public void addTeacherToStudent(long studentId, long teacherId) {
-		StudentEntity studentEntity = studentService.getPersonReference(studentId);
-		TeacherEntity teacherEntity = teacherService.getPersonReference(teacherId);
+		StudentEntity studentEntity = studentService.getPerson(studentId);
+		TeacherEntity teacherEntity = teacherService.getPerson(teacherId);
 		studentEntity.getTeachers()
 		             .add(teacherEntity);
 		teacherEntity.getStudents()
@@ -110,8 +107,8 @@ class StudentServiceFacadeImpl extends StudentServiceFacade {
 	@Override
 	@Transactional
 	public void removeTeacherFromStudent(long studentId, long teacherId) {
-		StudentEntity studentEntity = studentService.getPersonReference(studentId);
-		TeacherEntity teacherEntity = teacherService.getPersonReference(teacherId);
+		StudentEntity studentEntity = studentService.getPerson(studentId);
+		TeacherEntity teacherEntity = teacherService.getPerson(teacherId);
 		studentEntity.getTeachers()
 		             .remove(teacherEntity);
 		teacherEntity.getStudents()

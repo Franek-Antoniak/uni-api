@@ -5,9 +5,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class PersonRead {
-	private Long personId;
-	private String firstName;
-	private String lastName;
-	private String email;
+public abstract class PersonRead {
+	protected Long personId;
+	protected String firstName;
+	protected String lastName;
+	protected String email;
 }

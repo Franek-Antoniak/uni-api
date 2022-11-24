@@ -7,6 +7,7 @@ import org.recru.task.teacher.repository.TeacherRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Set;
@@ -22,7 +23,13 @@ class TeacherServiceImpl extends TeacherService {
 	}
 
 	@Override
+	@Transactional
 	public void deletePerson(Long id) {
+		TeacherEntity teacherEntity = teacherRepository.findById(id)
+		                                               .orElseThrow(() -> new TeacherNotFoundException(id));
+		teacherEntity.getStudents()
+		             .forEach(studentEntity -> studentEntity.getTeachers()
+		                                                    .remove(teacherEntity));
 		teacherRepository.deleteById(id);
 	}
 
@@ -38,7 +45,7 @@ class TeacherServiceImpl extends TeacherService {
 	}
 
 	@Override
-	public Set<TeacherEntity> getPersonsReferences(List<Long> persons) {
+	public Set<TeacherEntity> getPersonsById(List<Long> persons) {
 		return teacherRepository.getAllByPersonIdIn(persons);
 	}
 
